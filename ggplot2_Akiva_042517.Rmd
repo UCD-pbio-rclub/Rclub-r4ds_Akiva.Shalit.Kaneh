@@ -2,7 +2,9 @@
 title: "ggplot2_Akiva_042517"
 author: "Akiva Shalit-Kaneh"
 date: "April 25, 2017"
-output: html_document
+output: 
+  html_document: 
+    keep_md: yes
 ---
 ```{r include=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
