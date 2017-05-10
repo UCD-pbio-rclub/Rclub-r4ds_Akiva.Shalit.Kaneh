@@ -1,0 +1,250 @@
+---
+title: "R_club-May_10th"
+author: "Akiva Shalit-Kaneh"
+date: "May 4, 2017"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Transformation
+
+Below is a fix for not being able to download nycflights13 from:
+https://github.com/rstudio/webinars/issues/2
+
+
+```{r}
+install.packages("https://cran.r-project.org/src/contrib/nycflights13_0.2.2.tar.gz", repos=NULL, method="libcurl")
+```
+
+To use view() you need to call on tidyverse first.
+```{r}
+library(nycflights13)
+library(tidyverse)
+```
+
+## 5.2.4 Exercises
+
+1.1 Flights with an arrival delay of 2 or more hours:
+```{r}
+one_one <- filter(flights, arr_delay >= 120)
+```
+
+1.2 Flew to Houston:
+```{r}
+one_two <- filter(flights, dest == 'HOU' | dest == 'IAH')
+```
+
+1.3 Were operated by United, American, or Delta:
+
+```{r}
+one_three <- filter(flights, carrier == 'UA' | carrier == 'AA' | carrier == 'DL')
+```
+or 
+
+```{r}
+one_three <- filter(flights, carrier %in% c('UA', 'AA', 'DL'))
+```
+
+1.4 Departed in summer (July, August, and September):
+
+```{r}
+one_four <- filter(flights, month %in% c(7, 8, 9))
+```
+
+1.5 Arrived more than two hours late, but didn’t leave late: Note that early planes have negative minute values.
+
+```{r}
+one_five <- filter(flights, arr_delay >= 120 & dep_delay <= 0)
+```
+
+1.6 Were delayed by at least an hour, but made up over 30 minutes in flight:
+
+```{r}
+one_six <- filter(flights, dep_delay >= 60, dep_delay-arr_delay > 30)
+```
+
+1.7 Departed between midnight and 6am (inclusive):
+
+```{r}
+one_seven <- filter(flights, dep_time <=600 | dep_time == 2400)
+```
+
+2. between() is a shortcut for x >= left & x <= right, implemented efficiently in C++ for local values, and translated to the appropriate SQL for remote tables.
+
+```{r}
+two_seven <- filter(flights, !between(dep_time, 601, 2359))
+```
+
+3. 
+```{r}
+summary(flights)
+```
+
+8255 departure times are missing. Other missing data are dep_delay 8255, 8713 arr_time, 9430 arr_delay.
+
+4.All the examples have a known solution regardless of the NAs value.
+Any number to the power of 0 is 1, any " " | True will return a vlue of true. Any False & "" will give false. The rule is that if the value is known regardless of NA that will be the default.
+
+## Exercise 5.3.1
+
+1. How could you use arrange() to sort all missing values to the start? (Hint: use is.na()).
+
+```{r}
+df <- tibble(x = c(5, 2, NA))
+arrange(df, desc(is.na(x)))
+```
+
+Or
+
+```{r}
+arrange(df, -(is.na(x)))
+```
+
+I did not understand this, does it work because TRUE values are first?
+In the second example TRUE gets the value of -1 and the others 0, is that the reason for the descending order?
+
+2.Sort flights to find the most delayed flights. Find the flights that left earliest.
+
+# _Most delayed_
+```{r}
+arrange(flights, desc(dep_delay))
+
+```
+# _Left the earliest_
+```{r}
+arrange(flights, dep_delay)
+```
+
+3.Sort flights to find the fastest flights.
+
+```{r}
+arrange(flights, air_time)
+```
+
+4.Which flights travelled the longest? Which travelled the shortest?
+
+```{r}
+arrange(flights, distance)
+```
+
+EWR to LGA 17 miles
+
+```{r}
+arrange(flights, desc(distance))
+```
+
+JFK to HNL 4983 miles
+
+
+## Exercise 5.4.1
+
+1.
+```{r}
+select(flights, dep_time,  dep_delay, arr_time, arr_delay)
+```
+
+
+```{r}
+vars <- c("dep_time", "dep_delay", "arr_time", "arr_delay")
+select(flights, one_of(vars))
+```
+
+
+
+2.What happens if you include the name of a variable multiple times in a select() call?
+
+```{r}
+select(flights, dep_time,  dep_time, dep_time, arr_delay)
+```
+
+Select treats variables written twice or more as if they were written once.
+
+3. one_of() is used with select as well but you have to first define a vector and put it into the vars varialble to use the function.
+
+
+```{r}
+vars <- c("year", "month", "day", "dep_delay", "arr_delay")
+select(flights, one_of(vars))
+```
+
+4. Does the result of running the following code surprise you? How do the select helpers deal with case by default? How can you change that default?
+
+```{r}
+select(flights, contains("TIME"))
+```
+
+This was surprising, contains() was not case sensitive. By default several of the select helper functions are not case sensitive.
+
+starts_with(match, ignore.case = TRUE, vars = current_vars())
+
+ends_with(match, ignore.case = TRUE, vars = current_vars())
+
+contains(match, ignore.case = TRUE, vars = current_vars())
+
+matches(match, ignore.case = TRUE, vars = current_vars())
+ 
+# This can be changes by setting _ignore.case = FALSE_
+
+## 5.5.2 Exercises
+
+1. Currently dep_time and sched_dep_time are convenient to look at, but hard to compute with because they’re not really continuous numbers. Convert them to a more convenient representation of number of minutes since midnight.
+
+```{r}
+New_flights <- flights
+New_flights_min <- mutate(New_flights, dep_time_min = dep_time %/% 100 * 60 + dep_time %% 100, sched_dep_time_min = sched_dep_time %/% 100 * 60 + sched_dep_time %% 100)
+New_flights_Min <- select(New_flights_min, -dep_time, -sched_dep_time)
+```
+How can I swap columns, or place new columns in place of existing ones (I know I can use select( wanted column, everything() ).
+
+2.Compare air_time with arr_time - dep_time. What do you expect to see? What do you see? What do you need to do to fix it?
+
+```{r}
+flights_new <- mutate(flights, arr_dep = arr_time - dep_time)
+select(flights_new, air_time, dep_time, arr_dep, everything())
+```
+
+The variables dep_time and arr_time are in both hours and minutes and are not a continuous value. To fix this they should be converted to minutes as was done in question 1.
+
+3. Compare dep_time, sched_dep_time, and dep_delay. How would you expect those three numbers to be related?
+
+```{r}
+(Compare <- select(flights, dep_time, sched_dep_time, dep_delay))
+```
+
+dep_delay is the result of subtracting sched_dep_time from dep_time.
+
+4. Find the 10 most delayed flights using a ranking function. How do you want to handle ties? Carefully read the documentation for min_rank().
+
+```{r}
+filter(flights, min_rank(desc(dep_delay))<=10)
+```
+
+using desc() in min_rank gived the largest values the smalest ranking and so asking for those with ranking <=10 is what we are looking for.
+
+5. What does 1:3 + 1:10 return? Why?
+```{r}
+1:3 + 1:10
+```
+
+This results in an error
+
+> Warning message:
+In 1:3 + 1:10 :
+  longer object length is not a multiple of shorter object length
+  
+This makes two vectors of different sizes and so they cannot be added to each other.
+
+6. What trigonometric functions does R provide?
+
+>Trigonometric Functions
+
+Description
+
+These functions give the obvious trigonometric functions. They respectively compute the cosine, sine, tangent, arc-cosine, arc-sine, arc-tangent, and the two-argument arc-tangent.
+
+cospi(x), sinpi(x), and tanpi(x), compute cos(pi*x), sin(pi*x), and tan(pi*x).

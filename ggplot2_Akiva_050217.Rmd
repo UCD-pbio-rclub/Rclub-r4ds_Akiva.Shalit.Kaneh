@@ -74,7 +74,100 @@ ggplot() +
   geom_point(data = mpg, mapping = aes(x = displ, y = hwy,fill=drv),shape = 21,size=5,stroke=2,colour="white")
 ```
 
+3.7.1 Exercises
 
+1. stat_summary is associated with geom_pointrange.
+Both of the below codes do not exactly recapitulate the graph.
+```{r}
+ggplot(diamonds) +
+  geom_pointrange(aes(cut, depth, ymin = depth, ymax = depth))
+```
+
+```{r}
+ggplot(data = diamonds, aes(cut, depth)) + 
+  stat_summary()
+```
+2.geom_col() is short-hand for geom_bar(stat = "identity")
+The default stat is "count". geom_bar is for bar plots.
+
+3. Pairs are easily accessed: http://sape.inf.usi.ch/quick-reference/ggplot2/geom
+
+4.method:	
+smoothing method (function) to use, eg. lm, glm, gam, loess, rlm. For datasets with n < 1000 default is loess. For datasets with 1000 or more observations defaults to gam, see gam for more details. 
+lm for linear smooths, glm for generalised linear smooths, loess for local smooths.
+
+5. Both of the below codes give bar charts that are all the same.
+group = 1 tell R that all data adds up to 1.
+
+
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop..))
+```
+
+adding after ..prop.., group = 1)) fixes this
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop.., fill = color))
+```
+
+adding after ..prop.., group = 1)) _does not_ fixes this bar chart.
+Question:why is this.
+
+## Position Adjustments
+
+
+## 3.8.1 Exercises
+
+1. The data points are overplotted. Could use Jitter.
+Below I added "jitter" to geom_point().
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_point(position = "jitter")
+```
+
+2. What parameters control the amount of jittering?
+
+Width and Height control jittering, the default is 40% in each direction. The amount you enter is once for positive and once for negative.
+
+3.As seen below geom_count tells you how overplotted certain areas are and shows that via point size on the graph. Jitter keeps the points at the same size but moves them slightly so they can all be seen and are not one on top of the other.
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_count()
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) + 
+  geom_jitter()
+```
+
+
+4.The default position for geom_boxplot is ?
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, y = displ)) + 
+  geom_boxplot(aes(colour = drv))
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, color = drv)) + 
+  geom_bar()
+```
+
+
+## 3.9.1 Exercises
+
+1. Changing a bar chart to a polar chart.
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, color = drv)) + 
+  geom_bar() +
+coord_polar()
+```
 ## My own data
 
 ```{r include=TRUE, message=FALSE, warning=FALSE}
@@ -85,4 +178,10 @@ ggplot(data = All) +
   facet_wrap(~ Genotype, nrow = 2)
 ```
 
+2.labs() Change axis labels and legend titles
 
+3. The difference between coord_map() and coord_quickmap()
+With coord_map all elements of the graphic have to be projected which is not the case here. So coord_quickmap has the advantage of being much faster, in particular for complex plots such as those using with geom_tile, at the expense of correctness in the projection.
+
+4.coord_fixed() forces a 1:1 ratio between 1 unit on the x axis and 1 unit on the y axis.
+geom_abline() Makes Lines: horizontal, vertical, and specified by slope and intercept.
