@@ -1,18 +1,30 @@
----
-title: "Untitled"
-author: "Akiva Shalit-Kaneh"
-date: "May 31, 2017"
-output: 
-  html_document: 
-    keep_md: yes
----
+# Untitled
+Akiva Shalit-Kaneh  
+May 31, 2017  
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+
+
+```r
+library(tidyverse)
 ```
 
-```{r}
-library(tidyverse)
+```
+## Loading tidyverse: ggplot2
+## Loading tidyverse: tibble
+## Loading tidyverse: tidyr
+## Loading tidyverse: readr
+## Loading tidyverse: purrr
+## Loading tidyverse: dplyr
+```
+
+```
+## Conflicts with tidy packages ----------------------------------------------
+```
+
+```
+## filter(): dplyr, stats
+## lag():    dplyr, stats
 ```
 ## Chapter 11 Data Import
 
@@ -21,7 +33,8 @@ library(tidyverse)
 1.What function would you use to read a file where fields were separated with
 “|”?
 
-```{r}
+
+```r
 #read_delim(file, delim = "|")
 ```
 
@@ -126,58 +139,131 @@ progress - displays progress bar (not while knitting).
 4.Sometimes strings in a CSV file contain commas. To prevent them from causing problems they need to be surrounded by a quoting character, like " or '. By convention, read_csv() assumes that the quoting character will be ", and if you want to change it you’ll need to use read_delim() instead. What arguments do you need to specify to read the following text into a data frame?
 
 
-```{r}
+
+```r
 x <- "x,y\n1,'a,b'"
 read_delim(x, ",", quote = "'")
 ```
 
+```
+## # A tibble: 1 × 2
+##       x     y
+##   <int> <chr>
+## 1     1   a,b
+```
+
 5.Identify what is wrong with each of the following inline CSV files. What happens when you run the code?
 
-```{r}
-read_csv("a,b\n1,2,3\n4,5,6")
 
+```r
+read_csv("a,b\n1,2,3\n4,5,6")
+```
+
+```
+## Warning: 2 parsing failures.
+## row col  expected    actual         file
+##   1  -- 2 columns 3 columns literal data
+##   2  -- 2 columns 3 columns literal data
+```
+
+```
+## # A tibble: 2 × 2
+##       a     b
+##   <int> <int>
+## 1     1     2
+## 2     4     5
+```
+
+```r
 # Third column was not specified so the last column is dropped.
 # Fixed read_csv("a,b,c\n1,2,3\n4,5,6")
-
 ```
 
-```{r}
-read_csv("a,b,c\n1,2\n1,2,3,4")
 
+```r
+read_csv("a,b,c\n1,2\n1,2,3,4")
+```
+
+```
+## Warning: 2 parsing failures.
+## row col  expected    actual         file
+##   1  -- 3 columns 2 columns literal data
+##   2  -- 3 columns 4 columns literal data
+```
+
+```
+## # A tibble: 2 × 3
+##       a     b     c
+##   <int> <int> <int>
+## 1     1     2    NA
+## 2     1     2     3
+```
+
+```r
 # Three columns specified, third column's first value is not specified and gets an automatic NA. There is not 4th column so the fourth number in the second row is dropped.
 # Fix read_csv("a,b,c,d\n1,2,3,4\n1,2,3,4")
-
 ```
 
-```{r}
 
-
+```r
 read_csv("a,b\n\"1")
+```
 
+```
+## Warning: 2 parsing failures.
+## row col                     expected    actual         file
+##   1  a  closing quote at end of file           literal data
+##   1  -- 2 columns                    1 columns literal data
+```
+
+```
+## # A tibble: 1 × 2
+##       a     b
+##   <int> <chr>
+## 1     1  <NA>
+```
+
+```r
 # I don't understand this.
-
-
 ```
 
-```{r}
+
+```r
 read_csv("a,b\n1,2\na,b")
-
-# 1 and 2 are read as 'chr' and not 'int'
-
 ```
 
-```{r}
+```
+## # A tibble: 2 × 2
+##       a     b
+##   <chr> <chr>
+## 1     1     2
+## 2     a     b
+```
+
+```r
+# 1 and 2 are read as 'chr' and not 'int'
+```
 
 
+```r
 read_csv("a;b\n1;3")
+```
 
+```
+## # A tibble: 1 × 1
+##   `a;b`
+##   <chr>
+## 1   1;3
+```
+
+```r
 # a;b is seen as the column name and 1;3 as the 'chr' data.
 # Fix read_csv2("a;b\n1;3")
-
 ```
 
 
-```{r}
+
+```r
 library(hms)
 ```
 
@@ -205,20 +291,53 @@ Should diacritics be stripped from date names and converted to ASCII? This is us
 
 2.What happens if you try and set 'decimal_mark' and 'grouping_mark' to the same character? What happens to the default value of grouping_mark when you set decimal_mark to “,”? What happens to the default value of decimal_mark when you set the grouping_mark to “.”?
 
-```{r}
+
+```r
 #locale(decimal_mark = ".", grouping_mark = ".")
 ```
 
 # These cannot be the same!
 
-```{r}
+
+```r
 locale(decimal_mark = ",")
+```
+
+```
+## <locale>
+## Numbers:  123.456,78
+## Formats:  %AD / %AT
+## Timezone: UTC
+## Encoding: UTF-8
+## <date_names>
+## Days:   Sunday (Sun), Monday (Mon), Tuesday (Tue), Wednesday (Wed),
+##         Thursday (Thu), Friday (Fri), Saturday (Sat)
+## Months: January (Jan), February (Feb), March (Mar), April (Apr), May
+##         (May), June (Jun), July (Jul), August (Aug), September
+##         (Sep), October (Oct), November (Nov), December (Dec)
+## AM/PM:  AM/PM
 ```
 
 # Grouping mark is set to period.
 
-```{r}
+
+```r
 locale(grouping_mark = ".")
+```
+
+```
+## <locale>
+## Numbers:  123.456,78
+## Formats:  %AD / %AT
+## Timezone: UTC
+## Encoding: UTF-8
+## <date_names>
+## Days:   Sunday (Sun), Monday (Mon), Tuesday (Tue), Wednesday (Wed),
+##         Thursday (Thu), Friday (Fri), Saturday (Sat)
+## Months: January (Jan), February (Feb), March (Mar), April (Apr), May
+##         (May), June (Jun), July (Jul), August (Aug), September
+##         (Sep), October (Oct), November (Nov), December (Dec)
+## AM/PM:  AM/PM
 ```
 # Decimal mark is set to comma
 
@@ -226,10 +345,25 @@ locale(grouping_mark = ".")
 
 Default date and time formats. These could be changes:
 
-```{r}
+
+```r
 parse_date("1 janvier 2015", "%d %B %Y", locale = locale("fr"))
+```
+
+```
+## [1] "2015-01-01"
+```
+
+```r
 #> [1] "2015-01-01"
 parse_date("14 oct. 1979", "%d %b %Y", locale = locale("fr"))
+```
+
+```
+## [1] "1979-10-14"
+```
+
+```r
 #> [1] "1979-10-14"
 ```
 
@@ -254,14 +388,26 @@ Time
 %Z Time zone (as name, e.g. America/Chicago). Beware of abbreviations: if you’re American, note that “EST” is a Canadian time zone that does not have daylight savings time. It is not Eastern Standard Time! We’ll come back to this time zones.
 
 
-```{r}
+
+```r
 parse_time("20:10:10", "%H %M %OS", locale = locale("fr"))
+```
+
+```
+## Warning: 1 parsing failure.
+## row col            expected   actual
+##   1  -- time like %H %M %OS 20:10:10
+```
+
+```
+## NA
 ```
 # This did not work!
 
 4.If you live outside the US, create a new locale object that encapsulates the settings for the types of file you read most commonly.
 
-```{r}
+
+```r
 maori <- locale(date_names(
   day = c("Rātapu", "Rāhina", "Rātū", "Rāapa", "Rāpare", "Rāmere", "Rāhoroi"),
   mon = c("Kohi-tātea", "Hui-tanguru", "Poutū-te-rangi", "Paenga-whāwhā",
@@ -302,42 +448,77 @@ ISO-2022-KR
 
 7.Generate the correct format string to parse each of the following dates and times:
 
-```{r}
+
+```r
 d1 <- "January 1, 2010"
 parse_date(d1, "%B %d, %Y", locale = locale("en"))
 ```
 
+```
+## [1] "2010-01-01"
+```
+
 # Adding the comma after %d, enabled the function to work and parse d1.
 
-```{r}
+
+```r
 d2 <- "2015-Mar-07"
 parse_date(d2, "%Y- %b- %d")
 ```
 
+```
+## [1] "2015-03-07"
+```
 
-```{r}
+
+
+```r
 d3 <- "06-Jun-2017"
 parse_date(d3, "%d- %b -%Y")
 ```
 
-```{r}
+```
+## [1] "2017-06-06"
+```
+
+
+```r
 d4 <- c("August 19 (2015)", "July 1 (2015)")
 parse_date(d4, "%B %d (%Y)", locale = locale("en"))
 ```
 
+```
+## [1] "2015-08-19" "2015-07-01"
+```
 
-```{r}
+
+
+```r
 d5 <- "12/30/14" # Dec 30, 2014
 parse_date(d5, "%m/%d/%y", locale = locale("en"))
 ```
 
-```{r}
+```
+## [1] "2014-12-30"
+```
+
+
+```r
 t1 <- "1705"
 parse_time(t1, "%H%M")
 ```
 
-```{r}
+```
+## 17:05:00
+```
+
+
+```r
 t2 <- "11:15:10.12 PM"
 parse_time(t2,"%H: %M: %OS %p")
+```
+
+```
+## 23:15:10.12
 ```
 
